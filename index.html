@@ -1,0 +1,540 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="description"
+        content="End-to-end joint-embedding predictive architecture from pixels.">
+  <meta name="keywords" content="LeJEPA, JEPA, LeWorldModel, LeWM">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>LeWorldModel: Stable End-to-End Joint-Embedding
+Predictive Architecture from Pixels</title>
+
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/computer-modern/cmu-serif.css">
+
+  <link rel="stylesheet" href="./static/css/bulma.min.css">
+  <link rel="stylesheet" href="./static/css/bulma-carousel.min.css">
+  <link rel="stylesheet" href="./static/css/bulma-slider.min.css">
+  <link rel="stylesheet" href="./static/css/fontawesome.all.min.css">
+  <link rel="stylesheet"
+        href="https://cdn.jsdelivr.net/gh/jpswalsh/academicons@1/css/academicons.min.css">
+  <link rel="stylesheet" href="./static/css/index.css">
+
+  <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+  <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+  <script>
+    MathJax = {
+      tex: {
+        macros: {
+          vz: "\\mathbf{z}",
+          vo: "\\mathbf{o}",
+          va: "\\mathbf{a}",
+          mZ: "\\mathbf{Z}",
+          enc: "\\mathrm{Enc}",
+          pred: "\\mathrm{Pred}",
+          gL: "\\mathcal{L}"
+        }
+      }
+    };
+  </script>
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+  <script defer src="./static/js/fontawesome.all.min.js"></script>
+  <script src="./static/js/bulma-carousel.min.js"></script>
+  <script src="./static/js/bulma-slider.min.js"></script>
+  <script src="./static/js/index.js"></script>
+</head>
+<body>
+
+
+
+<section class="hero">
+  <div class="hero-body">
+    <div class="container is-max-desktop">
+      <div class="columns is-centered">
+        <div class="column has-text-centered">
+          <h1 class="title is-1 publication-title"><strong>LeWorldModel</strong>:</h1>
+          <h2 class="title is-2 publication-title">Stable End-to-End JEPA from Pixels</h2>
+
+          <div class="is-size-5 publication-authors">
+            <span class="author-block">
+              <a href="https://x.com/lucasmaes_">Lucas Maes*</a><sup>1</sup>, </span>
+            <span class="author-block">
+              <a href="https://quentinll.github.io">Quentin Le Lidec*</a><sup>2</sup>, </span>
+            <span class="author-block">
+              <a href="https://mila.quebec/en/directory/damien-scieur">Damien Scieur</a><sup>1,3</sup>,
+            </span>
+            <span class="author-block">
+              <a href="http://yann.lecun.com">Yann LeCun</a><sup>2</sup>,
+            </span>
+            <span class="author-block">
+              <a href="https://randallbalestriero.github.io">Randall Balestriero</a><sup>4</sup>, 
+            </span>
+          </div>
+
+          <div class="is-size-5 publication-authors">
+            <span class="author-block"><sup>1</sup>Mila & Université de Montréal,</span>
+            <span class="author-block"><sup>2</sup>New York University</span>
+            <span class="author-block"><sup>3</sup>Samsung SAIL</span>
+            <span class="author-block"><sup>4</sup>Brown University</span>
+          </div>
+
+
+          <div class="is-size-5 publication-authors">
+            <span class="author-block"><sup>*</sup>Equal Contribution</span>
+          </div>
+
+          <div class="column has-text-centered">
+            <div class="publication-links">
+              <!-- PDF Link. -->
+              <span class="link-block">
+                <a href="https://arxiv.org/pdf/2603.19312v1"
+                   class="external-link button is-normal is-rounded is-dark">
+                  <span class="icon">
+                      <i class="fas fa-file-pdf"></i>
+                  </span>
+                  <span>Paper</span>
+                </a>
+              </span>
+              <!-- Code Link. -->
+              <span class="link-block">
+                <a href="https://github.com/lucas-maes/le-wm"
+                   class="external-link button is-normal is-rounded is-dark">
+                  <span class="icon">
+                      <i class="fab fa-github"></i>
+                  </span>
+                  <span>Code</span>
+                  </a>
+              </span>
+              <!-- Dataset Link. -->
+              <span class="link-block">
+                <a href="https://drive.google.com/drive/folders/1r31os0d4-rR0mdHc7OlY_e5nh3XT4r4e?usp=sharing"
+                   class="external-link button is-normal is-rounded is-dark">
+                  <span class="icon">
+                      <i class="far fa-images"></i>
+                  </span>
+                  <span>Data & Checkpoints</span>
+                  </a>
+            </div>
+
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section" style="padding-top: 0.5rem;">
+  <div class="container is-max-desktop">
+
+    <!-- LeWM clip -->
+    <div class="has-text-centered" style="margin-bottom: 2rem;">
+      <video autoplay muted loop playsinline width="70%" style="border-radius: 7px; border: 1px solid #c4c6c8; pointer-events: none;">
+        <source src="./static/videos/lewm.mp4" type="video/mp4">
+      </video>
+    </div>
+
+    <!-- Abstract. -->
+    <div class="columns is-centered has-text-centered">
+      <div class="column is-four-fifths">
+        <div class="abstract-box">
+        <h2 class="title is-3">Abstract</h2>
+        <div class="content has-text-justified">
+          <p>
+            Joint Embedding Predictive Architectures (JEPAs) offer a compelling framework for learning world models in compact latent spaces, yet existing methods remain fragile, relying on complex multi-term losses, exponential moving averages, pre-trained encoders, or auxiliary supervision to avoid representation collapse. In this work, we introduce LeWorldModel (LeWM), the first JEPA that trains stably end-to-end from raw pixels using only two loss terms: a next-embedding prediction loss and a regularizer enforcing Gaussian-distributed latent embeddings. This reduces tunable loss hyperparameters from six to one compared to the only existing end-to-end alternative. With ~15M parameters trainable on a single GPU in a few hours, LeWM plans up to 48&times; faster than foundation-model-based world models while remaining competitive across diverse 2D and 3D control tasks. Beyond control, we show that LeWM's latent space encodes meaningful physical structure through probing of physical quantities. Surprise evaluation confirms that the model reliably detects physically implausible events.
+          </p>
+        </div>
+        </div><!-- /abstract-box -->
+        <p style="color: #aaa; font-size: 0.88rem; margin-top: 2.5rem; text-align: justify;"><strong style="color: #000;">TL;DR:</strong> LeWM is a JEPA-based world model that avoids representation collapse using a simple Gaussian regularizer (SIGReg), trains end-to-end from pixels with only two loss terms, and achieves competitive control performance at a fraction of the compute cost.</p>
+      </div>
+    </div>
+    <!--/ Abstract. -->
+
+
+  </div>
+</section>
+
+<section class="section">
+  <div class="container is-max-desktop">
+    <div class="columns is-centered has-text-centered">
+      <div class="column is-four-fifths">
+        <h2 class="title is-3">Approach</h2>
+        <div class="content has-text-justified">
+          <p>
+            <strong>Model Architecture.</strong>
+            LeWM is built upon two components: an encoder and a predictor.
+            The encoder maps a given frame observation \(\vo_t\) into a compact, low-dimensional latent representation \(\vz_t\).
+            The predictor models the environment dynamics in latent space by predicting the embedding of the next frame observation \(\hat{\vz}_{t+1}\) given the latent embedding \(\vz_t\) and an action \(\va_t\).
+          </p>
+          <p style="text-align: center;">
+            $$\text{LeWorldModel} \left\{\begin{aligned}
+              \text{Encoder:} \quad & \vz_t = \enc(\vo_t) \\
+              \text{Predictor:} \quad & \hat{\vz}_{t+1} = \pred(\vz_t, \va_t)
+            \end{aligned}\right.$$
+          </p>
+          <p>
+            <strong>Training Objective.</strong>
+            The complete LeWM training objective combines a classical prediction loss \(\gL_{\rm pred}\) with a regularization term:
+          </p>
+          <p style="text-align: center;">
+            $$\gL_{\rm LeWM} \triangleq \gL_{\rm pred} + \lambda\,\mathrm{SIGReg}(\mZ)$$
+          </p>
+          <p>
+            The prediction loss \(\gL_{\rm pred}\) is a standard latent prediction loss.
+            SIGReg is a regularization enforcing a Gaussian distribution of the latent space; we refer to
+            <a href="https://arxiv.org/abs/2511.08544" target="_blank" style="color: #226999;">LeJEPA</a> for details.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="container is-max-desktop">
+    <div class="columns is-centered">
+      <div class="column is-four-fifths">
+        <h2 class="title is-3 has-text-centered">Planning with LeWM</h2>
+        <div class="content has-text-justified">
+          <p>
+            LeWM plans purely from pixels, with no proprioceptive information used at any stage. At test time, LeWM encodes a start and goal image into latent space, then uses the Cross-Entropy Method to optimize an action sequence by rolling out candidates through the predictor and picking those whose final embedding lands closest to the goal. Because each frame is encoded as a single 192-dim token (roughly 200&times; fewer tokens than DINO-WM), planning completes in about ~1 second versus 47 seconds for DINO-WM, a 48&times; speedup. We perform ablations on several design choices of LeWM and find that LeWM reaches similar performances while being orders of magnitude more efficient than DINO-WM.
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Efficient Planning -->
+    <br><h3 class="title is-4 has-text-centered">Efficient Planning</h3>
+    <div class="columns is-centered"><div class="column is-four-fifths">
+    <p class="has-text-justified" style="margin-bottom: 1.5rem;">Planning performance at a fixed compute budget (FLOPs). LeWM achieves competitive results with a fraction of the computation required by baselines.</p>
+    </div></div>
+    <div class="columns is-centered">
+      <div class="column is-one-quarter has-text-centered">
+        <img src="./static/images/planning/planning_time.png" alt="Planning time comparison" style="width: 100%;">
+        <!-- <p class="is-size-6 mt-2">Planning Time</p> -->
+      </div>
+      <div class="column is-one-quarter has-text-centered">
+        <img src="./static/images/planning/ctrl-pusht_fixed_flops.png" alt="Push-T fixed FLOPs" style="width: 100%;">
+        <!-- <p class="is-size-6 mt-2">Push-T</p> -->
+      </div>
+      <div class="column is-one-quarter has-text-centered">
+        <img src="./static/images/planning/ctrl-ogb-cube_fixed_flops.png" alt="OGBench Cube fixed FLOPs" style="width: 100%;">
+        <!-- <p class="is-size-6 mt-2">OGBench Cube</p> -->
+      </div>
+    </div>
+    <!--/ Efficient Planning -->
+
+    <!-- Planning Results -->
+    <br><h3 class="title is-4 has-text-centered" style="margin-top: 2rem;">Planning Results</h3>
+    <div class="columns is-centered"><div class="column is-four-fifths">
+    <p class="has-text-justified" style="margin-bottom: 1.5rem;">Planning performance across four environments: Two-Room (2D navigation), Reacher (2-joint arm control), Push-T (block manipulation), and OGBench-Cube (3D robotic pick-and-place). LeWM outperforms PLDM on all challenging tasks and surpasses DINO-WM on Push-T and Reacher, even without pre-trained features. On Push-T, LeWM beats DINO-WM even when DINO-WM uses additional proprioceptive inputs. DINO-WM retains an edge on the visually complex 3D OGBench-Cube task, likely due to richer visual priors from large-scale pretraining. LeWM underperforms on Two-Room; we suspect this is due to the intrinsic dimensionality of the task being too low, which may hinder the Gaussian regularizer from producing a well-structured latent space.</p>
+    </div></div>
+    <!-- Top row: half gif + plot per env -->
+    <div class="columns is-centered">
+      <div class="column is-one-quarter has-text-centered">
+        <p class="is-size-6 mb-2"><strong>Two-Room</strong></p>
+        <img src="./static/videos/planning/tworoom/tworoom_3_half.gif" alt="Two-Room planning" style="width: 100%;">
+        <img src="./static/images/planning/ctrl-two-room.png" alt="Two-Room planning plot" style="width: 100%;">
+      </div>
+      <div class="column is-one-quarter has-text-centered">
+        <p class="is-size-6 mb-2"><strong>Reacher</strong></p>
+        <img src="./static/videos/planning/reacher/reacher_1_half.gif" alt="Reacher planning" style="width: 100%;">
+        <img src="./static/images/planning/ctrl-reacher.png" alt="Reacher planning plot" style="width: 100%;">
+      </div>
+      <div class="column is-one-quarter has-text-centered">
+        <p class="is-size-6 mb-2"><strong>Push-T</strong></p>
+        <img src="./static/videos/planning/pusht/pusht_1_half.gif" alt="Push-T planning" style="width: 100%;">
+        <img src="./static/images/planning/ctrl-push-t.png" alt="Push-T planning plot" style="width: 100%;">
+      </div>
+      <div class="column is-one-quarter has-text-centered">
+        <p class="is-size-6 mb-2"><strong>OGBench Cube</strong></p>
+        <img src="./static/videos/planning/cube/cube_1_half.gif" alt="OGBench Cube planning" style="width: 100%;">
+        <img src="./static/images/planning/ctrl-ogbench-cube.png" alt="OGBench Cube planning plot" style="width: 100%;">
+      </div>
+    </div>
+
+    <!-- Extra results mention -->
+    <div class="columns is-centered" style="margin-top: 1.5rem;"><div class="column is-four-fifths">
+    <p class="has-text-justified" style="margin-bottom: 0.5rem;">Additional qualitative rollouts for each environment are shown below, including both success and failure cases. Each clip shows two frames side by side: <strong>left</strong> is the planning rollout and <strong>right</strong> is the visual goal.</p>
+    </div></div>
+
+    <!-- Extra GIFs: one horizontal strip per environment -->
+    <div style="display: flex; flex-direction: column; gap: 1.5rem; margin-top: 1.5rem;">
+
+      <div style="display: flex; align-items: center; gap: 0.5rem; justify-content: center;">
+        <div style="writing-mode: vertical-rl; transform: rotate(180deg); font-weight: bold; font-size: 0.9rem; white-space: nowrap; min-width: 1.5rem; text-align: center;">Two-Room</div>
+        <div style="display: flex; gap: 0.5rem; max-width: 75%;">
+          <div style="flex: 1; text-align: center;">
+            <p class="mb-1"><strong>Success</strong></p>
+            <img src="./static/videos/planning/tworoom/tworoom_2_half.gif" alt="Two-Room success" style="width: 100%;">
+          </div>
+          <div style="flex: 1; text-align: center;">
+            <p class="mb-1"><strong>Success</strong></p>
+            <img src="./static/videos/planning/tworoom/tworoom_3_half.gif" alt="Two-Room success" style="width: 100%;">
+          </div>
+          <div style="flex: 1; text-align: center;">
+            <p class="mb-1"><strong>Failure</strong></p>
+            <img src="./static/videos/planning/tworoom/tworoom_1_fail_half.gif" alt="Two-Room failure" style="width: 100%;">
+          </div>
+        </div>
+      </div>
+
+      <div style="display: flex; align-items: center; gap: 0.5rem; justify-content: center;">
+        <div style="writing-mode: vertical-rl; transform: rotate(180deg); font-weight: bold; font-size: 0.9rem; white-space: nowrap; min-width: 1.5rem; text-align: center;">Reacher</div>
+        <div style="display: flex; gap: 0.5rem; max-width: 75%;">
+          <div style="flex: 1; text-align: center;">
+            <p class="mb-1"><strong>Success</strong></p>
+            <img src="./static/videos/planning/reacher/reacher_1_half.gif" alt="Reacher success" style="width: 100%;">
+          </div>
+          <div style="flex: 1; text-align: center;">
+            <p class="mb-1"><strong>Success</strong></p>
+            <img src="./static/videos/planning/reacher/reacher_3_half.gif" alt="Reacher success" style="width: 100%;">
+          </div>
+          <div style="flex: 1; text-align: center;">
+            <p class="mb-1"><strong>Failure</strong></p>
+            <img src="./static/videos/planning/reacher/reacher_fail_half.gif" alt="Reacher failure" style="width: 100%;">
+          </div>
+        </div>
+      </div>
+
+      <div style="display: flex; align-items: center; gap: 0.5rem; justify-content: center;">
+        <div style="writing-mode: vertical-rl; transform: rotate(180deg); font-weight: bold; font-size: 0.9rem; white-space: nowrap; min-width: 1.5rem; text-align: center;">Push-T</div>
+        <div style="display: flex; gap: 0.5rem; max-width: 75%;">
+          <div style="flex: 1; text-align: center;">
+            <p class="mb-1"><strong>Success</strong></p>
+            <img src="./static/videos/planning/pusht/pusht_1_half.gif" alt="Push-T success" style="width: 100%;">
+          </div>
+          <div style="flex: 1; text-align: center;">
+            <p class="mb-1"><strong>Success</strong></p>
+            <img src="./static/videos/planning/pusht/pusht_2_half.gif" alt="Push-T success" style="width: 100%;">
+          </div>
+          <div style="flex: 1; text-align: center;">
+            <p class="mb-1"><strong>Failure</strong></p>
+            <img src="./static/videos/planning/pusht/pusht_3_fail_half.gif" alt="Push-T failure" style="width: 100%;">
+          </div>
+        </div>
+      </div>
+
+      <div style="display: flex; align-items: center; gap: 0.5rem; justify-content: center;">
+        <div style="writing-mode: vertical-rl; transform: rotate(180deg); font-weight: bold; font-size: 0.9rem; white-space: nowrap; min-width: 1.5rem; text-align: center;">OGBench Cube</div>
+        <div style="display: flex; gap: 0.5rem; max-width: 75%;">
+          <div style="flex: 1; text-align: center;">
+            <p class="mb-1"><strong>Success</strong></p>
+            <img src="./static/videos/planning/cube/cube_2_half.gif" alt="Cube success" style="width: 100%;">
+          </div>
+          <div style="flex: 1; text-align: center;">
+            <p class="mb-1"><strong>Failure</strong></p>
+            <img src="./static/videos/planning/cube/cube_4_half.gif" alt="Cube failure" style="width: 100%;">
+          </div>
+          <div style="flex: 1; text-align: center;">
+            <p class="mb-1"><strong>Failure</strong></p>
+            <img src="./static/videos/planning/cube/cube_5_half.gif" alt="Cube failure" style="width: 100%;">
+          </div>
+        </div>
+      </div>
+
+    </div>
+    <!--/ Planning Results -->
+
+  </div>
+  <div style="margin-bottom: 3rem;"></div>
+</section>
+
+<section class="section" id="video-section">
+  <div class="container is-max-desktop">
+
+    <h2 class="title is-3 has-text-centered">Evaluating Physical Understanding</h2>
+
+    <br><h3 class="title is-4 has-text-centered">Physical Latent Probing</h3>
+    <div class="columns is-centered"><div class="column is-four-fifths">
+    <p class="has-text-justified" style="margin-bottom: 1rem;">We evaluate which physical quantities are recoverable from LeWM's latent representations by training a lightweight supervised probe to predict physical quantities of interest from latent embeddings.</p>
+    </div></div>
+    <div class="table-container" style="overflow-x: auto; margin-bottom: 2rem;">
+      <p style="font-size: 0.9em; margin-bottom: 0.75rem; text-align: justify;">
+        <strong>Physical latent probing results on Push-T.</strong> LeWM consistently outperforms PLDM while remaining competitive with DINO-WM. The strong probing performance of DINO-WM on certain properties may stem from its foundation-model pretraining: the DINOv2 encoder is trained on two orders of magnitude more data (∼124M images) spanning a far more diverse distribution, which likely allows it to capture some physical properties in its embeddings by default.
+      </p>
+      <table class="table is-bordered is-striped is-hoverable is-fullwidth" style="font-size: 0.82em; text-align: center;">
+        <thead>
+          <tr>
+            <th rowspan="3" style="vertical-align: middle; text-align: left;">Model</th>
+            <th colspan="4" style="text-align: center;">Agent Location</th>
+            <th colspan="4" style="text-align: center;">Block Location</th>
+            <th colspan="4" style="text-align: center;">Block Angle</th>
+          </tr>
+          <tr>
+            <th colspan="2">Linear</th>
+            <th colspan="2">MLP</th>
+            <th colspan="2">Linear</th>
+            <th colspan="2">MLP</th>
+            <th colspan="2">Linear</th>
+            <th colspan="2">MLP</th>
+          </tr>
+          <tr>
+            <th>MSE ↓</th><th>r ↑</th>
+            <th>MSE ↓</th><th>r ↑</th>
+            <th>MSE ↓</th><th>r ↑</th>
+            <th>MSE ↓</th><th>r ↑</th>
+            <th>MSE ↓</th><th>r ↑</th>
+            <th>MSE ↓</th><th>r ↑</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td style="text-align: left;">DINO-WM</td>
+            <td>1.888</td><td>0.977</td>
+            <td>0.003</td><td>0.999</td>
+            <td>0.006</td><td>0.997</td>
+            <td>0.002</td><td>0.999</td>
+            <td>0.050</td><td>0.979</td>
+            <td>0.009</td><td>0.995</td>
+          </tr>
+          <tr>
+            <td style="text-align: left;">PLDM</td>
+            <td>0.090</td><td>0.955</td>
+            <td>0.014</td><td>0.993</td>
+            <td>0.122</td><td>0.938</td>
+            <td>0.011</td><td>0.994</td>
+            <td>0.446</td><td>0.745</td>
+            <td>0.056</td><td>0.972</td>
+          </tr>
+          <tr style="border-top: 2px solid #363636;">
+            <td style="text-align: left;"><strong>LeWM</strong></td>
+            <td><strong>0.052</strong></td><td><strong>0.974</strong></td>
+            <td><strong>0.004</strong></td><td><strong>0.998</strong></td>
+            <td><strong>0.029</strong></td><td><strong>0.986</strong></td>
+            <td><strong>0.001</strong></td><td><strong>0.999</strong></td>
+            <td><strong>0.187</strong></td><td><strong>0.902</strong></td>
+            <td><strong>0.021</strong></td><td><strong>0.990</strong></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Decoding Latent Space. -->
+    <br><h3 class="title is-4 has-text-centered">Decoding Latent Space</h3>
+    <div class="columns is-centered">
+      <div class="column is-four-fifths">
+        <p class="has-text-justified">To visualize the predictions made by LeWM, we train a lightweight decoder (used only for visualization, not during training) to reconstruct images from the CLS token embedding. For each environment, we report: (i) the original video, (ii) the video obtained by encoding and decoding each frame independently, and (iii) the video of latent predictions produced by the world model when conditioned on an action sequence. We can see that LeWM captures the most important parts of the scene and reproduces environment dynamics.</p>
+      </div>
+    </div>
+    <div class="columns is-centered" style="margin-top: 1rem;">
+      <div class="column is-half has-text-centered">
+        <img src="./static/videos/planning/tworoom/tworoom_viz_lewm.gif" alt="Two-Room decoding" style="width: 100%;">
+        <p class="is-size-6 mt-2"><strong>Two-Room</strong></p>
+      </div>
+      <div class="column is-half has-text-centered">
+        <img src="./static/videos/planning/reacher/reacher_viz_lewm.gif" alt="Reacher decoding" style="width: 100%;">
+        <p class="is-size-6 mt-2"><strong>Reacher</strong></p>
+      </div>
+    </div>
+    <div class="columns is-centered">
+      <div class="column is-half has-text-centered">
+        <img src="./static/videos/planning/pusht/pusht_viz_lewm.gif" alt="Push-T decoding" style="width: 100%;">
+        <p class="is-size-6 mt-2"><strong>Push-T</strong></p>
+      </div>
+      <div class="column is-half has-text-centered">
+        <img src="./static/videos/planning/cube/cube_viz_lewm.gif" alt="OGBench Cube decoding" style="width: 100%;">
+        <p class="is-size-6 mt-2"><strong>OGBench Cube</strong></p>
+      </div>
+    </div>
+    <!--/ Decoding Latent Space. -->
+
+    <!-- Visualizing Latent Space. -->
+     <br><h3 class="title is-4 has-text-centered">Visualizing Latent Space</h3>
+    <div class="columns is-centered"><div class="column is-four-fifths">
+    <p class="has-text-justified">A t-SNE visualization of the latent space in the <em>PushT</em> environment suggests that the learned representation captures the spatial structure of the environment, preserving neighborhood relationships and relative positions in the latent space.</p>
+    </div></div>
+    <div style="max-width: 95%; margin: 1rem auto 0;">
+      <div class="has-text-centered" style="margin-bottom: 1rem;">
+        <img src="./static/images/visualization/pusht_lejepa_epoch_10_tsne.png" alt="t-SNE LeJEPA" style="width: 85%;">
+        <p class="is-size-6 mt-2"><strong>LeWM</strong></p>
+      </div>
+    </div>
+    <!--/ Visualizing Latent Space. -->
+
+    <br><h3 class="title is-4 has-text-centered">Violation-of-Expectation</h3>
+    <div class="columns is-centered"><div class="column is-four-fifths">
+    <p class="has-text-justified" style="margin-bottom: 2rem;">To evaluate the physical understanding of our models, we follow the violation-of-expectation paradigm, where a world model should assign higher surprise to events that contradict learned physical regularities.</p>
+    </div></div>
+
+    <!-- PushT videos. -->
+    <h3 class="title is-4 has-text-centered">PushT</h3>
+    <div class="columns is-centered" style="max-width: 95%; margin: 0 auto; align-items: flex-end;">
+      <div class="column is-one-fifth has-text-centered">
+        <video autoplay muted loop playsinline width="100%" style="pointer-events: none;">
+          <source src="./static/videos/voe/pusht/env_control_4.mp4" type="video/mp4">
+        </video>
+        <p class="is-size-6 mt-2"><strong>Unperturbed</strong></p>
+      </div>
+      <div class="column is-one-fifth has-text-centered">
+        <video autoplay muted loop playsinline width="100%" style="pointer-events: none;">
+          <source src="./static/videos/voe/pusht/env_block_color_4.mp4" type="video/mp4">
+        </video>
+        <p class="is-size-6 mt-2"><strong>Block color change</strong></p>
+      </div>
+      <div class="column is-one-fifth has-text-centered">
+        <video autoplay muted loop playsinline width="100%" style="pointer-events: none;">
+          <source src="./static/videos/voe/pusht/env_teleport_4.mp4" type="video/mp4">
+        </video>
+        <p class="is-size-6 mt-2"><strong>Teleportation</strong></p>
+      </div>
+      <div class="column is-one-quarter has-text-centered">
+        <img src="./static/images/voe/surprise_pusht_lejepa_epoch_10.png" width="100%" alt="Surprise scores for PushT">
+        <p class="is-size-6 mt-2"><strong>Surprise scores</strong></p>
+      </div>
+    </div>
+    <!--/ PushT videos. -->
+
+    <!-- Cube videos. -->
+    <h3 class="title is-4 has-text-centered">Cube</h3>
+    <div class="columns is-centered" style="max-width: 95%; margin: 0 auto; align-items: flex-end;">
+      <div class="column is-one-fifth has-text-centered">
+        <video autoplay muted loop playsinline width="100%" style="pointer-events: none;">
+          <source src="./static/videos/voe/cube/env_control_3.mp4" type="video/mp4">
+        </video>
+        <p class="is-size-6 mt-2"><strong>Unperturbed</strong></p>
+      </div>
+      <div class="column is-one-fifth has-text-centered">
+        <video autoplay muted loop playsinline width="100%" style="pointer-events: none;">
+          <source src="./static/videos/voe/cube/env_cube_color_3.mp4" type="video/mp4">
+        </video>
+        <p class="is-size-6 mt-2"><strong>Cube color change</strong></p>
+      </div>
+      <div class="column is-one-fifth has-text-centered">
+        <video autoplay muted loop playsinline width="100%" style="pointer-events: none;">
+          <source src="./static/videos/voe/cube/env_teleport_3.mp4" type="video/mp4">
+        </video>
+        <p class="is-size-6 mt-2"><strong>Teleportation</strong></p>
+      </div>
+      <div class="column is-one-quarter has-text-centered">
+        <img src="./static/images/voe/surprise_cube_lejepa_epoch_10.png" width="100%" alt="Surprise scores for Cube">
+        <p class="is-size-6 mt-2"><strong>Surprise scores</strong></p>
+      </div>
+    </div>
+    <!--/ Cube videos. -->
+
+  </div>
+</section>
+
+
+
+<!-- <section class="section">
+  <div class="container is-max-desktop has-text-centered">
+    <p style="color: #aaa; font-size: 1.1rem;">All our experiments are powered by <a href="https://github.com/galilai-group/stable-worldmodel" target="_blank" class="tag" style="font-family: monospace; vertical-align: middle; background-color: #888; color: #fff;"><span class="icon is-small"><i class="fab fa-github"></i></span>&nbsp;stable-worldmodel</a>.</p>
+  </div>
+</section> -->
+
+<section class="section" id="BibTeX">
+  <div class="container is-max-desktop content">
+    <h2 class="title">Citation (BibTeX)</h2>
+    <pre><code>@article{leworldmodel2026,
+  author    = {Maes, Lucas and Le Lidec, Quentin and Scieur, Damien and LeCun, Yann and Balestriero, Randall},
+  title     = {LeWorldModel: Stable End-to-End Joint-Embedding Predictive Architecture from Pixels},
+  year      = {2026},
+}</code></pre>
+  </div>
+</section>
+
+
+</body>
+</html>

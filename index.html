@@ -111,19 +111,9 @@ Predictive Architecture from Pixels</title>
                 <a href="https://hf.co/collections/quentinll/lewm"
                    class="external-link button is-normal is-rounded is-dark">
                   <span class="icon">
-                      <i class="far fa-images"></i>
-                  </span>
-                  <span>Data</span>
-                  </a>
-              </span>
-              <!-- Dataset Link. -->
-              <span class="link-block">
-                <a href="https://drive.google.com/drive/folders/1r31os0d4-rR0mdHc7OlY_e5nh3XT4r4e?usp=sharing"
-                   class="external-link button is-normal is-rounded is-dark">
-                  <span class="icon">
                       <i class="fas fa-cubes"></i>
                   </span>
-                  <span>Checkpoints</span>
+                  <span>Data &amp; Checkpoints</span>
                   </a>
             </div>
 
@@ -237,7 +227,7 @@ Predictive Architecture from Pixels</title>
     <!-- Planning Results -->
     <br><h3 class="title is-4 has-text-centered" style="margin-top: 2rem;">Planning Results</h3>
     <div class="columns is-centered"><div class="column is-four-fifths">
-    <p class="has-text-justified" style="margin-bottom: 1.5rem;">Planning performance across four environments: Two-Room (2D navigation), Reacher (2-joint arm control), Push-T (block manipulation), and OGBench-Cube (3D robotic pick-and-place). LeWM outperforms PLDM on all challenging tasks and surpasses DINO-WM on Push-T and Reacher, even without pre-trained features. On Push-T, LeWM beats DINO-WM even when DINO-WM uses additional proprioceptive inputs. DINO-WM retains an edge on the visually complex 3D OGBench-Cube task, likely due to richer visual priors from large-scale pretraining. LeWM underperforms on Two-Room; we suspect this is due to the intrinsic dimensionality of the task being too low, which may hinder the Gaussian regularizer from producing a well-structured latent space.</p>
+    <p class="has-text-justified" style="margin-bottom: 1.5rem;">Planning performance across four environments: Two-Room (2D navigation), Reacher (2-joint arm control), Push-T (block manipulation), and OGBench-Cube (3D robotic pick-and-place). LeWM outperforms PLDM on all challenging tasks and surpasses DINO-WM on Push-T and Reacher, even without pre-trained features. On Push-T, LeWM beats DINO-WM even when DINO-WM uses additional proprioceptive inputs. DINO-WM retains an edge on the visually complex 3D OGBench-Cube task, likely due to richer visual priors from large-scale pretraining. LeWM underperforms on Two-Room; we suspect this is due to the intrinsic dimensionality of the task being too low, which may hinder the Gaussian regularizer from producing a well-structured latent space. Additional checkpoints for baselines are available on <a href="https://drive.google.com/drive/folders/1r31os0d4-rR0mdHc7OlY_e5nh3XT4r4e?usp=sharing" target="_blank">Google Drive</a>.</p>
     </div></div>
     <!-- Top row: half gif + plot per env -->
     <div class="columns is-centered">
